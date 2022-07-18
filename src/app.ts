@@ -1,3 +1,35 @@
+// Validation
+interface Validatable {
+  value: string | number;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+function validate(validatable: Validatable) {
+  let isValid = true;
+  if (validatable.required) {
+    isValid = isValid && validatable.value.toString().trim().length !== 0;
+  }
+  if (validatable.minLength != null && typeof validatable.value === 'string') {
+    isValid = isValid && validatable.value.length >= validatable.minLength;
+  }
+  if (validatable.maxLength != null && typeof validatable.value === 'string') {
+    isValid = isValid && validatable.value.length <= validatable.maxLength;
+  }
+  if (validatable.min != null && typeof validatable.value === 'number') {
+    isValid = isValid && validatable.value >= validatable.min;
+  }
+  if (validatable.max != null && typeof validatable.value === 'number') {
+    isValid = isValid && validatable.value <= validatable.max;
+  }
+
+  console.log(isValid);
+  return isValid;
+}
+
 // Autobind decorator
 function autobind(_: any, __: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
@@ -52,10 +84,26 @@ class ProjectInput {
     const enteredDescription = this.descriptionInputElement.value;
     const enteredPeople = this.peopleInputElement.value;
 
+    const titleValidatable: Validatable = {
+      value: enteredTitle,
+      required: true,
+    };
+    const descriptionValidatable: Validatable = {
+      value: enteredDescription,
+      required: true,
+      minLength: 5,
+    };
+    const peopleValidatable: Validatable = {
+      value: +enteredPeople,
+      required: true,
+      min: 1,
+      max: 5,
+    };
+
     if (
-      enteredTitle.trim().length === 0 ||
-      enteredDescription.trim().length === 0 ||
-      enteredPeople.trim().length === 0
+      !validate(titleValidatable) ||
+      !validate(descriptionValidatable) ||
+      !validate(peopleValidatable)
     ) {
       alert('Invalid input, please try again!');
       return;
